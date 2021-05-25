@@ -1,5 +1,7 @@
+This repo is forked from [nat-lab/eoip](https://github.com/nat-lab/eoip) and I have made minor changes on this project. Please refer to [Changes](changes.md) for detailed information.
+
 eoip
----
+----
 
 This is an implement of MikroTik's [EoIP](http://wiki.mikrotik.com/wiki/Manual:Interface/EoIP)/EoIPv6 tunnel using TAP. EoIP (Ethernet over IP) and EoIPv6 (Ethernet over IPv6) are MikroTik RouterOS's Layer 2 tunneling protocol.
 
@@ -14,7 +16,7 @@ The EoIP protocol encapsulates Ethernet frames in the GRE (IP protocol number 47
 
 \* For some reason that I don't yet understand, specifying a local address of an interface on BSD-Based systems (except Darwin) will make `bind()` "Can't assign requested address." Please use `0.0.0.0` as the local address on these systems.
 
-### Install
+### Install (Please refer to [Changes](changes.md) for new installation guide)
 
 ```
 # git clone https://github.com/nat-lab/eoip
@@ -57,6 +59,8 @@ Now `tap1` is connected to `eoip-1` on MikroTik, don't forget to bring `tap1` up
 
 EoIP uses IP Protocol 47, which is the same as GRE.
 
+A unique identifier, Tunnel ID, must match other side of the tunnel. The accepted value range differs between EoIP and EoIPv6.
+
 Here's the packet format of EoIP:
 
 ```
@@ -65,7 +69,7 @@ Here's the packet format of EoIP:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |       GRE FLAGS 0x20 0x01     |      Protocol Type  0x6400    | = "\x20\x01\x64\x00"
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Encapsulated frame length   |           Tunnel ID           |
+|   Encapsulated frame length   |       Tunnel ID [0..65535]    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Ethernet frame...                                             |
 ```
@@ -78,16 +82,16 @@ EoIPv6 is much simpler. It use IP Protocol 97, which is the same as EtherIP:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  EoIP HEADER  | Ethernet frame...                             |
+|  EoIP HEADER                  | Ethernet frame...             |
 ```
 
-Header part of EoIPv6 are similar to [RFC3378](https://tools.ietf.org/html/rfc3378). The 12 reserved bits in the EtherIP header are now Tunnel ID. MikroTik also swaps the first four bits with second four bits in the EtherIP header, so the header looks like this:
+Header part of EoIPv6 are similar to [RFC3378](https://tools.ietf.org/html/rfc3378). The 12 reserved bits in the EtherIP header are now Tunnel ID, which is in range `[0..4095]`. MikroTik also swaps the first four bits with second four bits in the EtherIP header, so the header looks like this:
 
 ```
 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 |               |               |                               |
-|  TID Part 1   |    VERSION    |          TID Part 2           |
+|   TID Part 1  |    VERSION    |          TID Part 2           |
 |               |               |                               |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
@@ -102,7 +106,7 @@ https://github.com/nat-lab/eoip
 
 ### Acknowledgement
 
-<del>My waifu</del> [@amphineko](https://github.com/amphineko) for making me de-punk this project :)
+<del>NATO's waifu</del> [@amphineko](https://github.com/amphineko) for making NATO de-punk this project :)
 
 ### Licenses
 

@@ -1,0 +1,9 @@
+# build folders
+build/
+
+# IDEs
+.vscode
+.idea
+.project
+.classpath
+.c9
